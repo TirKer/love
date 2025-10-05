@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我们的回忆宝图</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- 引入 Three.js 3D 引擎 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+    <!-- 地图和谜题容器 -->
+    <div id="map-container">
+        <!-- 图片和热点的包装器 -->
+        <div id="image-wrapper">
+            <img src="images/map.png" alt="藏宝图" class="map-image" onerror="this.onerror=null;this.src='https://placehold.co/800x600/3d2f23/ffffff?text=Map+Not+Found';">
+
+            <!-- 9个解谜热点 (已精确定位) -->
+            <!-- 上方三个位置保持不变 -->
+            <div class="hotspot" data-clue-id="0" style="top: 18%; left: 20%;">
+                <div class="pulse"></div>
+                <span>?</span>
+            </div>
+            <div class="hotspot" data-clue-id="1" style="top: 20%; left: 45%;">
+                <div class="pulse"></div>
+                <span>?</span>
+            </div>
+            <div class="hotspot" data-clue-id="2" style="top: 25%; left: 78%;">
+                <div class="pulse"></div>
+                <span>?</span>
+            </div>
+
+            <!-- 下方六个位置已微调 -->
+            <div class="hotspot" data-clue-id="3" style="top: 45%; left: 35%;">
+                <div class="pulse"></div>
+                <span>?</span>
+            </div>
+            <div class="hotspot" data-clue-id="4" style="top: 40%; left: 75%;">
+                <div class="pulse"></div>
+                <span>?</span>
+            </div>
+             <div class="hotspot" data-clue-id="5" style="top: 65%; left: 20%;">
+                <div class="pulse"></div>
+                <span>?</span>
+            </div>
+            <div class="hotspot" data-clue-id="6" style="top: 62%; left: 48%;">
+                <div class="pulse"></div>
+                <span>?</span>
+            </div>
+            <div class="hotspot" data-clue-id="7" style="top: 63%; left: 76%;">
+                <div class="pulse"></div>
+                <span>?</span>
+            </div>
+            <div class="hotspot" data-clue-id="8" style="top: 85%; left: 30%;">
+                <div class="pulse"></div>
+                <span>?</span>
+            </div>
+
+
+            <!-- 最终宝藏点 -->
+            <div class="hotspot final-spot hidden" id="final-spot" style="top: 85%; left: 85%;">
+                <div class="pulse-final"></div>
+                <span>X</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 谜题弹窗 -->
+    <div id="clue-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-heart">❤</div>
+            <h2 id="clue-question">这里是问题</h2>
+            <input type="text" id="clue-answer" placeholder="请输入答案...">
+            <button id="submit-clue">确认</button>
+            <p id="feedback-message"></p>
+        </div>
+    </div>
+    
+    <!-- 最终密码弹窗 -->
+    <div id="final-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-heart">❤</div>
+            <h2>请输入最终的宝藏密码！</h2>
+            <input type="text" id="final-password" placeholder="集齐的密码是...">
+            <button id="submit-final">开启宝藏</button>
+            <p id="final-error" style="color: red;"></p>
+        </div>
+    </div>
+
+    <!-- 最终宝藏动画场景 -->
+    <div id="treasure-screen" class="hidden">
+        <canvas id="love-canvas"></canvas>
+        <div id="upload-container" class="hidden">
+             <label for="face-image-input" id="upload-label">上传照片，创造惊喜</label>
+             <input type="file" id="face-image-input" accept="image/*">
+        </div>
+        <p id="final-message" class="hidden">所有回忆的碎片，拼成了我对你的爱！</p>
+    </div>
+    
+    <!-- 免答题调试按钮 -->
+    <button id="debug-skip-button">免答题，看特效</button>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
