@@ -1,14 +1,14 @@
 // --- 1. 定制谜题、答案和密码碎片 ---
 const clues = [
-    { id: 0, question: "动物园里,我们给长颈鹿喂食时,它吃了什么叶子?", answer: "桑叶", fragment: "1" },
-    { id: 1, question: "樱花树下野餐,我做的三明治是什么口味的?", answer: "金枪鱼", fragment: "3" },
-    { id: 2, question: "在游乐园坐摩天轮时,我们听的那首歌叫什么?", answer: "告白气球", fragment: "1" },
-    { id: 3, question: "我们在河边许愿时,飘走的是什么颜色的纸船?", answer: "绿色", fragment: "4" },
-    { id: 4, question: "在海边看日落时,你说晚霞像什么水果?", answer: "橘子", fragment: "5" },
-    { id: 5, question: "演唱会上,我们为哪个乐队呐喊得最响亮?", answer: "五月天", fragment: "2" },
-    { id: 6, question: "在电影院看的那场催泪电影,女主角的名字是?", answer: "芳芳", fragment: "0" },
-    { id: 7, question: "我们骑双人自行车时,是谁在前面带路?", answer: "你", fragment: "8" },
-    { id: 8, question: "坐地铁回家时,你靠在我肩膀上睡着了,那是几号线?", answer: "一号线", fragment: "8" }
+    { id: 0, question: "动物园里,我们第一个喂的动物是?", answer: "卡皮巴拉", fragment: "1" },
+    { id: 1, question: "在顾村公园，我们在哪里一起放松聊天", answer: "湖边", fragment: "3" },
+    { id: 2, question: "在游乐园坐跳楼机时,我说了什么?", answer: "不爱你才不和你一起坐", fragment: "1" },
+    { id: 3, question: "我们第一次在大宁公园散步后，分别时月亮是什么样的", answer: "满月", fragment: "4" },
+    { id: 4, question: "看日出时，我们共同的感受是（一部电影名称）", answer: "爱在黎明破晓时", fragment: "5" },
+    { id: 5, question: "去苏州听黑屋乐队的live house前，我们几点集合", answer: "5点20", fragment: "2" },
+    { id: 6, question: "还记得我们第一次看电影后做了什么疯狂的事情嘛", answer: "骑行回家", fragment: "0" },
+    { id: 7, question: "骑行的时候，是谁在前领路", answer: "潇潇", fragment: "8" },
+    { id: 8, question: "10月7日潇潇会在哪里见到玲玲呢", answer: "苏州", fragment: "8" }
 ];
 const finalPassword = "131452088";
 
