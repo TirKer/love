@@ -51,13 +51,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const userAnswer = clueAnswer.value.trim().toLowerCase();
         const correctClue = clues.find(c => c.id === activeClueId);
         if (correctClue && userAnswer === correctClue.answer.toLowerCase()) {
-            feedbackMessage.textContent = `太棒了！你获得了一个密码碎片：【${correctClue.fragment}】`;
+            feedbackMessage.textContent = `太棒了！真不愧是我宝宝！宝宝你获得了一个回忆碎片：【${correctClue.fragment}】`;
             feedbackMessage.style.color = 'green';
             solvedClues.add(activeClueId);
             document.querySelector(`[data-clue-id='${activeClueId}']`).classList.add('solved');
             setTimeout(() => { clueModal.classList.add('hidden'); checkAllSolved(); }, 2000);
         } else {
-            feedbackMessage.textContent = '答案不对哦，再想想我们的回忆~';
+            feedbackMessage.textContent = '宝宝~ 答案不对哦，再想想我们的回忆~';
             feedbackMessage.style.color = 'red';
         }
     });
