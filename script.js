@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // ==========================================================
-    //       最终爱心动画特效
+    //       最终爱心动画特效 (已更新)
     // ==========================================================
     function startLoveAnimation() {
         const canvas = document.getElementById('love-canvas');
@@ -104,6 +104,11 @@ document.addEventListener('DOMContentLoaded', function() {
         let animationState = 'heart'; // 'heart', 'exploding', 'formingFace'
         let stateTimeout = null;
         let faceCoords = [];
+        
+        // 【新增】设备重力感应相关变量
+        let orientation = { beta: null, gamma: null };
+        let hasOrientation = false;
+
 
         // --- 2. 辅助函数与贴图预加载 ---
         const createGlowTexture = () => { 
@@ -155,6 +160,26 @@ document.addEventListener('DOMContentLoaded', function() {
         imageInput.addEventListener('change', (event) => {
             const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (e) => { const img = new Image(); img.onload = () => { const MAX_WIDTH = isMobile ? 200 : 300; const aspect = img.height / img.width; const width = MAX_WIDTH; const height = width * aspect; const tempCanvas = document.createElement('canvas'); tempCanvas.width = width; tempCanvas.height = height; const ctx = tempCanvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height); const data = ctx.getImageData(0, 0, width, height).data; faceCoords = []; const sampling = isMobile ? 6 : 4; for (let y = 0; y < height; y += sampling) { for (let x = 0; x < width; x += sampling) { const i = (y * width + x) * 4; const brightness = (data[i] + data[i+1] + data[i+2]) / 3; if (brightness > 50) { faceCoords.push({ x: (x - width / 2) * 0.2, y: (-y + height / 2) * 0.2, }); } } } uploadLabel.textContent = '照片已加载，点击触发'; }; img.src = e.target.result; }; reader.readAsDataURL(file);
         });
+        
+        // --- 【新增】更有活力的心跳函数 ---
+        function getHeartbeatScale(time) {
+            const beatDuration = 1.0; // 整个心跳周期的时长（秒）
+            const t = time % beatDuration;
+            const beatPower = 0.18; // 心跳的力度
+            
+            // 第一次跳动 ("咚")
+            if (t < 0.15) {
+                return 1.0 + beatPower * Math.sin((t / 0.15) * Math.PI);
+            }
+            // 第二次跳动 ("哒")
+            if (t > 0.25 && t < 0.4) {
+                const t2 = t - 0.25;
+                return 1.0 + (beatPower * 0.6) * Math.sin((t2 / 0.15) * Math.PI);
+            }
+            
+            // 舒张期
+            return 1.0;
+        }
 
         // --- 5. 动画循环与事件监听 ---
         function animate() {
@@ -166,7 +191,10 @@ document.addEventListener('DOMContentLoaded', function() {
             let forceFactor = 0.0015;
             if (animationState === 'formingFace') { targetPositions = faceTargetPositions; forceFactor = 0.002; }
             else if (animationState === 'exploding') { targetPositions = null; }
-            const beatScale = (animationState === 'heart') ? (1.0 + 0.1 * Math.sin(elapsedTime * 2.5)) : 1.0;
+
+            // 【已更新】使用新的心跳函数
+            const beatScale = (animationState === 'heart') ? getHeartbeatScale(elapsedTime) : 1.0;
+
             for (let i = 0; i < particleCount; i++) {
                 const idx = i * 3;
                 if (targetPositions) {
@@ -184,9 +212,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 const posAttr = rain.points.geometry.attributes.position; for (let i = 0; i < rain.count; i++) { posAttr.array[i * 3 + 1] -= rain.velocities[i]; if (posAttr.array[i * 3 + 1] < -50) { posAttr.array[i * 3 + 1] = 50; posAttr.array[i * 3] = (Math.random() - 0.5) * 120; } } posAttr.needsUpdate = true;
             };
             updateRain(heartRain); updateRain(textRainAi); updateRain(textRainNi);
+            
+            // 【已更新】摄像头控制逻辑，融合重力感应和鼠标
+            let targetX = mouse.x * 5;
+            let targetY = -mouse.y * 5;
 
-            camera.position.x += (mouse.x * 5 - camera.position.x) * 0.05;
-            camera.position.y += (-mouse.y * 5 - camera.position.y) * 0.05;
+            if (hasOrientation && orientation.beta !== null && orientation.gamma !== null) {
+                // 使用重力感应数据
+                // gamma: 左右倾斜 (-90 to 90) -> 控制 camera.position.x
+                const mappedGamma = Math.max(-90, Math.min(90, orientation.gamma));
+                targetX = (mappedGamma / 90) * 15; // 乘以15来增加灵敏度
+
+                // beta: 前后倾斜 (-180 to 180) -> 控制 camera.position.y
+                const mappedBeta = Math.max(-90, Math.min(90, orientation.beta));
+                targetY = (mappedBeta / 90) * 15;
+            }
+            
+            // 平滑地移动相机
+            camera.position.x += (targetX - camera.position.x) * 0.05;
+            camera.position.y += (targetY - camera.position.y) * 0.05;
             camera.lookAt(scene.position);
             renderer.render(scene, camera);
         }
@@ -196,7 +240,30 @@ document.addEventListener('DOMContentLoaded', function() {
         window.addEventListener('touchmove', e => { if(e.touches.length>0){ mouse.x = (e.touches[0].clientX / window.innerWidth) * 2 - 1; mouse.y = -(e.touches[0].clientY / window.innerHeight) * 2 + 1; } }, { passive: true });
         window.addEventListener('resize', () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
         
+        // 【新增】重力感应事件监听
+        function handleOrientation(event) {
+            // 第一次接收到有效数据时，标记为可用
+            if (event.beta !== null && event.gamma !== null && !hasOrientation) {
+                hasOrientation = true;
+            }
+            orientation.beta = event.beta;  // 前后倾斜
+            orientation.gamma = event.gamma; // 左右倾斜
+        }
+        window.addEventListener('deviceorientation', handleOrientation);
+
         window.addEventListener('click', () => {
+            // 【新增】针对iOS 13+设备，尝试请求重力感应权限
+            // 这是一个很好的实践，虽然不保证所有浏览器都需要
+            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                DeviceOrientationEvent.requestPermission()
+                    .then(permissionState => {
+                        if (permissionState === 'granted') {
+                            window.addEventListener('deviceorientation', handleOrientation);
+                        }
+                    })
+                    .catch(console.error);
+            }
+            
             if (animationState !== 'heart') return;
             if (stateTimeout) clearTimeout(stateTimeout);
 
@@ -235,4 +302,3 @@ document.addEventListener('DOMContentLoaded', function() {
         animate();
     }
 });
-
