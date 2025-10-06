@@ -185,10 +185,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
             let beatScale = 1.0;
             if (animationState === 'heart') {
-                const period = 1.1; 
+                const period = 1.1;
                 const cycleTime = elapsedTime % period;
-                const mainBeatIntensity = 0.18;
-                const secondBeatIntensity = 0.09;
+
+                // ==========================================================
+                //       MOBILE AMPLITUDE COMPENSATION
+                // ==========================================================
+                // 基础强度
+                let mainBeatIntensity = 0.18;
+                let secondBeatIntensity = 0.09;
+
+                // 如果是手机端，则增强搏动强度以补偿更远的摄像机距离
+                if (isMobile) {
+                    const compensationFactor = 1.3; // 补偿系数 (65/50)
+                    mainBeatIntensity *= compensationFactor;
+                    secondBeatIntensity *= compensationFactor;
+                }
+
                 const easeInOutQuad = (t) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
                 if (cycleTime < 0.2) {
                     beatScale = 1.0 + mainBeatIntensity * easeInOutQuad(cycleTime / 0.2);
@@ -210,10 +223,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 if (animationState === 'heart') {
-                    // ==========================================================
-                    //       MOBILE PERFORMANCE OPTIMIZATION
-                    // ==========================================================
-                    // 只在非手机端（电脑）才执行消耗性能的内部流动计算
+                    // 仍然保留对手机端的性能优化，优先保证心跳流畅
                     if (!isMobile) {
                         const flowStrength = 0.025;
                         const maxOffset = 2.0;
