@@ -133,13 +133,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const t = Math.random() * 2 * Math.PI;
             const x_surface = 12.5 * Math.pow(Math.sin(t), 3);
             const y_surface = 11 * Math.cos(t) - 4.5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
-
             const r = Math.cbrt(Math.random()); 
-
             const x_o = r * x_surface;
             const y_o = r * y_surface;
-
-            // UPDATED: 增加Z轴厚度，让爱心更饱满
             const z_f = Math.pow(Math.abs(x_surface) / 12.5, 0.5) * 10; 
             const z_s = (Math.random() - 0.5) * z_f * r;
 
@@ -213,32 +209,29 @@ document.addEventListener('DOMContentLoaded', function() {
                     currentTargetZ = faceTargetPositions[idx+2];
                 }
 
-                // ==========================================================
-                //       UPDATED INTERNAL FLOW LOGIC
-                // ==========================================================
                 if (animationState === 'heart') {
-                    // UPDATED: 显著增强流动强度和范围
-                    const flowStrength = 0.025; // 强度值，可以微调
-                    const maxOffset = 2.0;    // 最大偏移范围
-                    const timeFactor = elapsedTime * 0.4; // 整体涡旋速度
-
-                    // 制造一个缓慢、统一的涡旋感
-                    internalFlowOffsets[idx] += Math.sin(timeFactor + flowSpeeds[i] * 10) * flowStrength;
-                    internalFlowOffsets[idx + 1] += Math.cos(timeFactor + flowSpeeds[i] * 5) * flowStrength;
-                    internalFlowOffsets[idx + 2] += Math.sin(timeFactor + flowSpeeds[i] * 8) * flowStrength;
-
-                    // 使用向量长度来限制总偏移，效果更自然
-                    const offsetVector = new THREE.Vector3(internalFlowOffsets[idx], internalFlowOffsets[idx + 1], internalFlowOffsets[idx + 2]);
-                    if (offsetVector.length() > maxOffset) {
-                        offsetVector.normalize().multiplyScalar(maxOffset);
-                        internalFlowOffsets[idx] = offsetVector.x;
-                        internalFlowOffsets[idx + 1] = offsetVector.y;
-                        internalFlowOffsets[idx + 2] = offsetVector.z;
+                    // ==========================================================
+                    //       MOBILE PERFORMANCE OPTIMIZATION
+                    // ==========================================================
+                    // 只在非手机端（电脑）才执行消耗性能的内部流动计算
+                    if (!isMobile) {
+                        const flowStrength = 0.025;
+                        const maxOffset = 2.0;
+                        const timeFactor = elapsedTime * 0.4;
+                        internalFlowOffsets[idx] += Math.sin(timeFactor + flowSpeeds[i] * 10) * flowStrength;
+                        internalFlowOffsets[idx + 1] += Math.cos(timeFactor + flowSpeeds[i] * 5) * flowStrength;
+                        internalFlowOffsets[idx + 2] += Math.sin(timeFactor + flowSpeeds[i] * 8) * flowStrength;
+                        const offsetVector = new THREE.Vector3(internalFlowOffsets[idx], internalFlowOffsets[idx + 1], internalFlowOffsets[idx + 2]);
+                        if (offsetVector.length() > maxOffset) {
+                            offsetVector.normalize().multiplyScalar(maxOffset);
+                            internalFlowOffsets[idx] = offsetVector.x;
+                            internalFlowOffsets[idx + 1] = offsetVector.y;
+                            internalFlowOffsets[idx + 2] = offsetVector.z;
+                        }
+                        currentTargetX += internalFlowOffsets[idx];
+                        currentTargetY += internalFlowOffsets[idx + 1];
+                        currentTargetZ += internalFlowOffsets[idx + 2];
                     }
-                    
-                    currentTargetX += internalFlowOffsets[idx];
-                    currentTargetY += internalFlowOffsets[idx + 1];
-                    currentTargetZ += internalFlowOffsets[idx + 2];
                 }
 
                 if (targetPositions) {
