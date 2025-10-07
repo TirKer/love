@@ -57,17 +57,23 @@ document.addEventListener('DOMContentLoaded', function() {
             document.querySelector(`[data-clue-id='${activeClueId}']`).classList.add('solved');
             setTimeout(() => { clueModal.classList.add('hidden'); checkAllSolved(); }, 2000);
         } else {
-            feedbackMessage.textContent = '宝宝~ 答案不对哦，再想想我们的回忆~';
+            feedbackMessage.textContent = '答案不对哦，再想想我们的回忆~';
             feedbackMessage.style.color = 'red';
         }
     });
     function checkAllSolved() {
         if (solvedClues.size === clues.length) { finalSpot.classList.remove('hidden'); }
     }
+    // script.js, 找到 showFinalAnimation 函数
     function showFinalAnimation() {
         finalModal.classList.add('hidden');
         document.getElementById('map-container').style.display = 'none';
-        debugSkipButton.style.display = 'none';
+        
+        // 增加一个判断，确保按钮存在才去操作它
+        if (debugSkipButton) {
+            debugSkipButton.style.display = 'none';
+        }
+
         treasureScreen.classList.remove('hidden');
         uploadContainer.classList.remove('hidden');
         startLoveAnimation();
@@ -77,7 +83,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (finalPasswordInput.value.trim() === finalPassword) { showFinalAnimation(); } 
         else { finalError.textContent = '密码错误！再检查一下收集到的碎片哦。'; }
     });
-    debugSkipButton.addEventListener('click', showFinalAnimation);
+    if (debugSkipButton) {
+        debugSkipButton.addEventListener('click', showFinalAnimation);
+    }
     [clueModal, finalModal].forEach(modal => {
         modal.addEventListener('click', e => { if (e.target === modal) modal.classList.add('hidden'); });
     });
